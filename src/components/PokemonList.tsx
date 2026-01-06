@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect,useRef } from "react";
 import axios from "axios";
 // import React from "react";
 
@@ -31,7 +31,11 @@ export const PokemonList = () => {
   const [pokemons, setPokemons] = useState<PokemonListItem[]>([]);
   const [offset, setOffset] = useState(0);
 
+  const isFirstLoad = useRef(true);
+
   useEffect(() => {
+    if (!isFirstLoad.current && offset === 0) return;
+  isFirstLoad.current = false;
     const LIMIT = 12;
 
     const fetchPokemons = async () => {
@@ -87,46 +91,42 @@ export const PokemonList = () => {
 
   return (
     <>
-     <h2 className="flex justify-center text-6xl mb-10 mt-10">
-        Pokemon
-      </h2>
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-     
-      {pokemons.map((pokemon) => (
-        <div
-          key={pokemon.id}
-          className="bg-white rounded-2xl shadow-md p-4 flex flex-col items-center hover:shadow-xl hover:-translate-y-1 transition"
-        >
-          <img
-            src={
-              pokemon.sprites.other?.home?.front_default ||
-              pokemon.sprites.front_default ||
-              ""
-            }
-            alt={pokemon.name}
-            className="w-28 h-28 object-contain mb-2"
-          />
+      <h2 className="flex justify-center text-6xl mb-10 mt-10">Pokemon</h2>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {pokemons.map((pokemon) => (
+          <div
+            key={pokemon.id}
+            className="bg-white rounded-2xl shadow-md p-4 flex flex-col items-center hover:shadow-xl hover:-translate-y-1 transition"
+          >
+            <img
+              src={
+                pokemon.sprites.other?.home?.front_default ||
+                pokemon.sprites.front_default ||
+                ""
+              }
+              alt={pokemon.name}
+              className="w-28 h-28 object-contain mb-2"
+            />
 
-          <h3 className="capitalize font-bold text-gray-700 mb-2">
-            {pokemon.name}
-          </h3>
-          <div className="flex gap-2 flex-wrap justify-center">
-            {pokemon.types.map((t) => (
-              <span
-                key={t.slot}
-                className={`${
-                  typeColors[t.type.name] || "bg-gray-300"
-                } text-white px-3 py-1 rounded-full text-xs font-semibold capitalize`}
-              >
-                {t.type.name}
-              </span>
-            ))}
+            <h3 className="capitalize font-bold text-gray-700 mb-2">
+              {pokemon.name}
+            </h3>
+            <div className="flex gap-2 flex-wrap justify-center">
+              {pokemon.types.map((t) => (
+                <span
+                  key={t.slot}
+                  className={`${
+                    typeColors[t.type.name] || "bg-gray-300"
+                  } text-white px-3 py-1 rounded-full text-xs font-semibold capitalize`}
+                >
+                  {t.type.name}
+                </span>
+              ))}
+            </div>
           </div>
-        </div>
-      ))}
-      
-    </div>
-    <div className="flex justify-center">
+        ))}
+      </div>
+      <div className="flex justify-center">
         <button
           onClick={() => {
             setOffset((prevOffset) => prevOffset + 12);
@@ -136,6 +136,6 @@ export const PokemonList = () => {
           หน้าถัดไป
         </button>
       </div>
-      </>
+    </>
   );
 };

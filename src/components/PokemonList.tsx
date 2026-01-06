@@ -86,7 +86,12 @@ export const PokemonList = () => {
   };
 
   return (
+    <>
+     <h2 className="flex justify-center text-6xl mb-10 mt-10">
+        Pokemon
+      </h2>
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+     
       {pokemons.map((pokemon) => (
         <div
           key={pokemon.id}
@@ -119,15 +124,18 @@ export const PokemonList = () => {
           </div>
         </div>
       ))}
-
-      <button
-        onClick={() => {
-          setOffset((prevOffset) => prevOffset + 12);
-        }}
-        className="bg-black text-white"
-      >
-        หน้าถัดไป
-      </button>
+      
     </div>
+    <div className="flex justify-center">
+        <button
+          onClick={() => {
+            setOffset((prevOffset) => prevOffset + 12);
+          }}
+          className="bg-[#5DBACA] text-white rounded-4xl p-4 mt-10 mb-10 "
+        >
+          หน้าถัดไป
+        </button>
+      </div>
+      </>
   );
 };

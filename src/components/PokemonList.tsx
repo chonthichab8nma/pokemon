@@ -1,68 +1,55 @@
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { Search } from "lucide-react";
-// import React from "react";
+import type {NamedResource, PokemonListItem} from "./data";
+import { useNavigate } from "react-router-dom";
 
-interface NamedResource {
-  name: string;
-  url: string;
-}
-interface PokemonType {
-  slot: number;
-  type: NamedResource;
-}
-
-interface PokemonSprites {
-  front_default: string | null;
-  other?: {
-    home?: {
-      front_default: string | null;
-    };
-  };
-}
-
-interface PokemonListItem {
-  id: number;
-  name: string;
-  types: PokemonType[];
-  sprites: PokemonSprites;
-}
 
 export const PokemonList = () => {
   const [pokemons, setPokemons] = useState<PokemonListItem[]>([]);
   const [offset, setOffset] = useState(0);
   const [search, setSearch] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [selectedPokemon, setSelectedPokemon] =
-    useState<PokemonListItem | null>(null);
-  const [notFound, setNotFound] = useState(false);
+  // const [loading, setLoading] = useState(false);
+  // const [selectedPokemon, setSelectedPokemon] =
+  //   useState<PokemonListItem | null>(null);
+  // const [detailPokemon, setDetailPokemon] = useState<PokemonListItem | null>(null);
+  // const [notFound, setNotFound] = useState(false);
+  const navigate = useNavigate();
 
   const isFirstLoad = useRef(true);
 
-  const handleSelect = async (idOrName: number | string) => {
-    if (!idOrName) return;
-    setLoading(true);
-    setNotFound(false);
-    console.log("กำลัง search:", idOrName);
-    try {
-      const res = await axios.get<PokemonListItem>(
-        `https://pokeapi.co/api/v2/pokemon/${String(idOrName)
-          .toLowerCase()
-          .trim()}`
-      );
-      setSelectedPokemon(res.data);
-      setNotFound(false);
+  
 
-      console.log("res", res);
-      console.log("data", res.data);
-    } catch (error) {
-      console.error(error);
-      setSelectedPokemon(null);
-      setNotFound(true);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // const handleSelect = async (idOrName: number | string) => {
+  //   if (!idOrName) return;
+  //   setLoading(true);
+  //   setNotFound(false);
+  //   console.log("กำลัง search:", idOrName);
+  //   try {
+  //     const res = await axios.get<PokemonListItem>(
+  //       `https://pokeapi.co/api/v2/pokemon/${String(idOrName)
+  //         .toLowerCase()
+  //         .trim()}`
+  //     );
+  //     setSelectedPokemon(res.data);
+  //     setNotFound(false);
+
+  //     console.log("res", res);
+  //     console.log("data", res.data);
+  //   } catch (error) {
+  //     console.error(error);
+  //     setSelectedPokemon(null);
+  //     setNotFound(true);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+  const handleSearch = () => {
+  if (!search.trim()) return;
+  navigate(`/pokemon/${search.toLowerCase().trim()}`);
+};
+
+
 
   useEffect(() => {
     if (!isFirstLoad.current && offset === 0) return;
@@ -94,13 +81,19 @@ export const PokemonList = () => {
         // console.log("pokemonData", pokemonData);
       } catch (error) {
         console.error(error);
-        console.log("เออเร่อนะจ้ะ");
-      } finally {
-        // console.log("hello world ");
       }
     };
     fetchPokemons();
   }, [offset]);
+
+  //  if (selectedPokemon) {
+  //   return (
+  //     <Detail
+  //       pokemon={detailPokemon}
+  //       onBack={() => setDetailPokemon(null)}
+  //     />
+  //   );
+  // }
 
   const typeColors: Record<string, string> = {
     grass: "bg-green-500",
@@ -129,19 +122,19 @@ export const PokemonList = () => {
           placeholder="ค้นหา..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleSelect(search)}
+          onKeyDown={(e) => e.key === "Enter" && handleSearch()}
           className="w-full bg-amber-300 border-2 border-gray-300 rounded-2xl py-3 pr-20 pl-4 focus:outline-none focus:ring-2 focus:ring-yellow-400"
         />
 
         <button
-          onClick={() => handleSelect(search)}
+          onClick={() => handleSearch()}
           className="absolute right-1 top-1/2 -translate-y-1/2 text-white px-4 py-1 rounded-2xl hover:bg-yellow-500 transition flex items-center"
         >
           <Search size={16} className="mr-1" />
         </button>
       </div>
 
-      {loading && (
+      {/* {loading && (
         <p className="text-center text-gray-500 mb-4">กำลังโหลด Pokémon...</p>
       )}
       {selectedPokemon && !loading && (
@@ -173,18 +166,19 @@ export const PokemonList = () => {
             </div>
           </div>
         </div>
-      )}
+      )} */}
 
-      {notFound && (
+      {/* {notFound && (
         <p className="text-center text-red-500 font-semibold mb-4">
           ไม่พบ Pokémon ที่คุณค้นหา
         </p>
-      )}
-      {!selectedPokemon && !loading && !notFound && (
+      )} */}
+     
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {pokemons.map((pokemon) => (
             <div
               key={pokemon.id}
+              onClick={() => navigate(`/pokemon/${pokemon.id}`)}
               className="bg-white rounded-2xl shadow-md p-4 flex flex-col items-center hover:shadow-xl hover:-translate-y-1 transition"
             >
               <img
@@ -215,8 +209,8 @@ export const PokemonList = () => {
             </div>
           ))}
         </div>
-      )}
-      {!selectedPokemon && !loading && !notFound && (
+      
+      
         <div className="flex justify-center">
           <button
             onClick={() => {
@@ -227,7 +221,7 @@ export const PokemonList = () => {
             หน้าถัดไป
           </button>
         </div>
-      )}
+     
     </>
   );
 };

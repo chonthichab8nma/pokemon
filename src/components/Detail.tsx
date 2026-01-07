@@ -5,7 +5,7 @@ import type { PokemonListItem, NamedResource, PokemonType } from "./data";
 import { addFavorite, removeFavorite, isFavorite } from "../utils/favorites";
 import { addToTeam, removeFromTeam, isInTeam } from "../utils/team";
 import { Star, Plus } from "lucide-react";
-
+import "../App.css";
 interface EvolutionDetail extends NamedResource {
   types: string[];
 }
@@ -129,23 +129,25 @@ export const Detail = () => {
 
   if (loading) {
     return (
-      <p className="text-center text-gray-500 mt-20 text-xl">
-        กำลังโหลด Pokémon...
-      </p>
+      <div className="min-h-screen flex items-center justify-center bg-black">
+        <p className="text-center text-white text-xl animate-pulse">
+          กำลังโหลด Pokémon...
+        </p>
+      </div>
     );
   }
 
   if (notFound) {
     return (
-      <div className="text-center mt-20">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-black">
         <p className="text-red-500 text-xl font-semibold mb-4">
-          ไม่พบ Pokémon ที่คุณค้นหา
+          ไม่พบ Pokémon ที่ค้นหา
         </p>
         <button
           onClick={() => navigate("/pokemon")}
-          className="bg-gray-700 text-white px-4 py-2 rounded-xl"
+          className="bg-gray-700 text-white px-4 py-2 rounded-xl hover:bg-gray-600"
         >
-          กลับไปหน้า List
+          กลับ
         </button>
       </div>
     );
@@ -177,171 +179,199 @@ export const Detail = () => {
   };
 
   return (
-    <div className="max-w-xl mx-auto mt-10 bg-white rounded-3xl shadow-lg p-6 relative">
-      <button
-        onClick={() => navigate(-1)}
-        className="absolute top-4 left-4 text-sm text-gray-500 hover:underline"
-      >
-        ←
-      </button>
-      <div className="absolute top-4 right-4 flex gap-2">
+    //
+    <div className="font-pixel min-h-screen w-full bg-black py-10 px-4 text-white">
+     
+      <div className="max-w-8xl mx-auto mt-10 bg-black relative  ">
+       
         <button
-          onClick={() => {
-            if (favorite) removeFavorite(pokemon.id);
-            else
-              addFavorite({
-                id: pokemon.id,
-                name: pokemon.name,
-                image: pokemonImage,
-              });
-            setFavorite(!favorite);
-          }}
-          className={`p-2 rounded-full text-white ${
-            favorite ? "bg-yellow-400" : "bg-gray-400"
-          }`}
-          title={favorite ? "ลบจากโปรด" : "เพิ่มลงโปรด"}
+          onClick={() => navigate(-1)}
+          className="absolute top-6 left-6 text-sm text-gray-400 hover:text-white hover:underline z-50 cursor-pointer "
         >
-          <Star
-            size={20}
-            fill={favorite ? "currentColor" : "none"}
-            stroke="currentColor"
-          />
+          ← Back
         </button>
-        <button
-          onClick={() => {
-            if (!pokemon) return;
-
-            if (inTeam) {
-              removeFromTeam(pokemon.id);
-              setInTeam(false);
-            } else {
-              const added = addToTeam({
-                id: pokemon.id,
-                name: pokemon.name,
-                image: pokemonImage,
-                types: pokemon.types.map((t) => t.type.name),
-              });
-
-              if (added) {
-                setInTeam(true);
+        <div className="absolute top-6 right-6 flex gap-2">
+          <button
+            onClick={() => {
+              if (favorite) removeFavorite(pokemon.id);
+              else
+                addFavorite({
+                  id: pokemon.id,
+                  name: pokemon.name,
+                  image: pokemonImage,
+                });
+              setFavorite(!favorite);
+            }}
+            className={`p-2 rounded-full transition-all ${
+              favorite
+                ? "bg-yellow-500 text-white"
+                : "bg-zinc-700 text-gray-300 hover:bg-zinc-600"
+            }`}
+          >
+            <Star
+              size={20}
+              fill={favorite ? "currentColor" : "none"}
+              stroke="currentColor"
+            />
+          </button>
+          <button
+            onClick={() => {
+              if (!pokemon) return;
+              if (inTeam) {
+                removeFromTeam(pokemon.id);
+                setInTeam(false);
               } else {
-                setTeamMessage(
-                  "ทีมเต็มแล้ว! คุณสามารถมี Pokémon ได้สูงสุด 6 ตัว"
-                );
-                setTimeout(() => {
-                  setTeamMessage(null);
-                }, 3000);
+                const added = addToTeam({
+                  id: pokemon.id,
+                  name: pokemon.name,
+                  image: pokemonImage,
+                  types: pokemon.types.map((t) => t.type.name),
+                });
+                if (added) {
+                  setInTeam(true);
+                } else {
+                  setTeamMessage("ทีมเต็มแล้ว! สูงสุด 6 ตัว");
+                  setTimeout(() => setTeamMessage(null), 3000);
+                }
               }
-            }
-
-            window.dispatchEvent(new Event("teamUpdated"));
-          }}
-          className={`p-2 rounded-full text-white ${
-            inTeam ? "bg-red-500" : "bg-green-500"
-          }`}
-          title={inTeam ? "ลบออกจากทีม" : "เพิ่มเข้าทีม"}
-        >
-          <Plus size={20} />
-        </button>
-      </div>
-
-      <div className="flex flex-col items-center">
-       {teamMessage && (
-    <div className="w-full mb-4 animate-in fade-in zoom-in duration-200">
-      <div className="bg-red-600 text-white px-4 py-2 rounded-xl text-sm font-bold text-center shadow-md">
-        {teamMessage}
-      </div>
-    </div>
-  )}
-        <img
-          src={pokemonImage}
-          alt={pokemon.name}
-          className="w-48 h-48 object-contain"
-        />
-
-        <h2 className="text-3xl font-bold capitalize mb-2">{pokemon.name}</h2>
-
-        <div className="flex gap-2 mb-4">
-          {pokemon.types.map((t) => (
-            <span
-              key={t.slot}
-              className={`${
-                typeColors[t.type.name] || "bg-gray-300"
-              } text-white px-3 py-1 rounded-full text-sm capitalize`}
-            >
-              {t.type.name}
-            </span>
-          ))}
+              window.dispatchEvent(new Event("teamUpdated"));
+            }}
+            className={`p-2 rounded-full transition-all ${
+              inTeam ? "bg-red-600 text-white" : "bg-green-600 text-white"
+            }`}
+          >
+            <Plus size={20} />
+          </button>
         </div>
 
-        <div className="mt-6 mb-6 w-full text-center">
-          <p className="text-sm text-gray-500">Species</p>
-          <p className="capitalize font-semibold">{pokemon.species.name}</p>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4 w-full text-center">
-          <div className="bg-gray-100 rounded-xl p-3">
-            <p className="text-sm text-gray-500">Height</p>
-            <p className="font-semibold">{pokemon.height}</p>
+        {teamMessage && (
+          <div className="w-full mb-4 absolute top-20 left-0 flex justify-center z-10">
+            <div className="bg-red-600 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-md">
+              {teamMessage}
+            </div>
           </div>
+        )}
 
-          <div className="bg-gray-100 rounded-xl p-3">
-            <p className="text-sm text-gray-500">Weight</p>
-            <p className="font-semibold">{pokemon.weight}</p>
-          </div>
-        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mt-12">
+          <div className="flex flex-col items-center md:items-start text-center md:text-left">
+            <div className="relative w-full flex justify-center md:justify-start mb-6">
+              <div className="absolute top-1/2 left-1/2 md:left-24 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-gray-700 rounded-full blur-3xl opacity-30 z-0"></div>
+              <img
+                src={pokemonImage}
+                alt={pokemon.name}
+                className="w-56 h-56 object-contain relative z-10 drop-shadow-[0_0_15px_rgba(255,255,255,0.15)]"
+              />
+            </div>
 
-        <div className="mt-6 w-full">
-          <h3 className="font-bold mb-2">Stats</h3>
+            <h2 className="text-4xl font-extrabold capitalize mb-2">
+              {pokemon.name}
+            </h2>
 
-          <div className="space-y-2">
-            {pokemon.stats.map((s) => (
-              <div key={s.stat.name}>
-                <div className="flex justify-between text-sm">
-                  <span className="capitalize">{s.stat.name}</span>
-                  <span className="font-semibold">{s.base_stat}</span>
-                </div>
+            <div className="flex gap-2 mb-6 justify-center md:justify-start">
+              {pokemon.types.map((t) => (
+                <span
+                  key={t.slot}
+                  className={`${
+                    typeColors[t.type.name] || "bg-gray-600"
+                  } text-white px-4 py-1 rounded-full text-sm capitalize shadow-md`}
+                >
+                  {t.type.name}
+                </span>
+              ))}
+            </div>
 
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div
-                    className="bg-blue-500 h-2 rounded-full"
-                    style={{ width: `${Math.min(s.base_stat, 100)}%` }}
-                  />
-                </div>
+            <div className="w-full mb-6 text-center md:text-left">
+              <p className="text-sm text-gray-400">Species</p>
+              <p className="capitalize font-semibold text-lg">
+                {pokemon.species.name}
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4 w-full">
+              <div className="bg-zinc-800 border border-zinc-700 rounded-xl p-3 text-center md:text-left">
+                <p className="text-sm text-gray-400">Height</p>
+                <p className="font-semibold text-white">{pokemon.height}</p>
               </div>
-            ))}
+
+              <div className="bg-zinc-800 border border-zinc-700 rounded-xl p-3 text-center md:text-left">
+                <p className="text-sm text-gray-400">Weight</p>
+                <p className="font-semibold text-white">{pokemon.weight}</p>
+              </div>
+            </div>
           </div>
-        </div>
 
-        <div className="mt-6 w-full">
-          <h3 className="font-bold mb-2">Abilities</h3>
+          <div className="flex flex-col justify-center">
+            <div className="w-full mb-8">
+              <h3 className="font-bold text-xl mb-4 text-gray-200 border-l-4 border-blue-500 pl-3">
+                Base Stats
+              </h3>
+              <div className="space-y-3">
+                {pokemon.stats.map((s) => (
+                  <div key={s.stat.name}>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span className="capitalize text-gray-400">
+                        {s.stat.name}
+                      </span>
+                      <span className="font-semibold">{s.base_stat}</span>
+                    </div>
 
-          <ul className="flex gap-2 flex-wrap">
-            {pokemon.abilities.map((a) => (
-              <li
-                key={a.ability.name}
-                className="bg-blue-100 px-3 py-1 rounded-full text-sm capitalize"
-              >
-                {a.ability.name}
-                {a.is_hidden && (
-                  <span className="ml-1 text-xs text-gray-500">(hidden)</span>
-                )}
-              </li>
-            ))}
-          </ul>
+                    <div className="w-full bg-zinc-700 rounded-full h-2.5 overflow-hidden">
+                      <div
+                        className={`h-2.5 rounded-full transition-all duration-500 ${
+                          s.base_stat >= 100
+                            ? "bg-green-500"
+                            : s.base_stat >= 60
+                            ? "bg-blue-500"
+                            : "bg-orange-500"
+                        }`}
+                        style={{ width: `${Math.min(s.base_stat, 100)}%` }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="w-full">
+              <h3 className="font-bold text-xl mb-4 text-gray-200 border-l-4 border-purple-500 pl-3">
+                Abilities
+              </h3>
+              <ul className="flex gap-2 flex-wrap">
+                {pokemon.abilities.map((a) => (
+                  <li
+                    key={a.ability.name}
+                    className={`px-4 py-2 rounded-lg text-sm capitalize border ${
+                      a.is_hidden
+                        ? "bg-transparent border-dashed border-zinc-600 text-zinc-400"
+                        : "bg-zinc-800 border-zinc-700 text-white"
+                    }`}
+                  >
+                    {a.ability.name.replace("-", " ")}
+                    {a.is_hidden && (
+                      <span className="ml-2 text-xs text-zinc-500">
+                        (hidden)
+                      </span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
         </div>
 
         {evolutions.length > 0 && (
-          <div className="mt-8 w-full border-t pt-6">
-            <h3 className="font-bold mb-4 text-center">Evolution Chain</h3>
-            <div className="flex justify-center items-center gap-6 flex-wrap">
+          <div className="mt-12 w-full border-t border-[#7fff00] pt-8">
+            <h3 className="font-bold text-xl mb-6 text-center text-gray-200">
+              Evolution Chain
+            </h3>
+            <div className="flex justify-center items-center gap-8 flex-wrap">
               {evolutions.map((evo) => (
                 <div
                   key={evo.name}
                   onClick={() => navigate(`/pokemon/${evo.name}`)}
-                  className="cursor-pointer flex flex-col items-center hover:scale-105 transition-transform"
+                  className="cursor-pointer flex flex-col items-center group"
                 >
-                  <div className="bg-gray-50 rounded-full p-2 mb-2">
+                  <div className=" border border-[#7fff00] rounded-full p-4 mb-3 transition-transform group-hover:scale-110 group-hover:border-[#ffff00]">
                     <img
                       src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/${
                         evo.url.split("/").slice(-2, -1)[0]
@@ -350,14 +380,16 @@ export const Detail = () => {
                       className="w-20 h-20 object-contain"
                     />
                   </div>
-                  <p className="capitalize font-bold text-sm">{evo.name}</p>
+                  <p className="capitalize font-bold text-sm text-gray-300 group-hover:text-white">
+                    {evo.name}
+                  </p>
 
-                  <div className="flex gap-1 mt-1">
+                  <div className="flex gap-1 mt-2">
                     {evo.types.map((type) => (
                       <span
                         key={type}
                         className={`${
-                          typeColors[type] || "bg-gray-300"
+                          typeColors[type] || "bg-gray-600"
                         } text-[10px] text-white px-2 py-0.5 rounded-md capitalize`}
                       >
                         {type}
@@ -369,46 +401,36 @@ export const Detail = () => {
             </div>
 
             {forms.length > 1 && (
-              <div className="mt-8 w-full border-t pt-6">
-                <h3 className="font-bold mb-4 text-center">Other Forms</h3>
+              <div className="mt-10 w-full border-t border-[#7fff00] pt-6">
+                <h3 className="font-bold mb-4 text-center text-gray-400">
+                  Varieties
+                </h3>
 
-                <div className="flex justify-center gap-6 flex-wrap">
+                <div className="flex justify-center gap-4 flex-wrap">
                   {forms.map((form) => (
                     <div
                       key={form.name}
                       onClick={() => navigate(`/pokemon/${form.name}`)}
-                      className={`cursor-pointer flex flex-col items-center hover:scale-105 transition ${
-                        form.name === pokemon.name
-                          ? "ring-2 ring-blue-500 rounded-xl p-2"
-                          : ""
-                      }`}
+                      className={`cursor-pointer flex flex-col items-center hover:scale-105 transition opacity-80 hover:opacity-100`}
                     >
-                      <div className="bg-gray-50 rounded-full p-2 mb-2">
+                      <div
+                        className={`rounded-full p-1 mb-1 ${
+                          form.name === pokemon.name
+                            ? "ring-2 ring-[#7fff00]"
+                            : ""
+                        }`}
+                      >
                         <img
                           src={form.image || ""}
                           alt={form.name}
-                          className="w-20 h-20 object-contain"
+                          className="w-16 h-16 object-contain"
                         />
                       </div>
-
-                      <p className="capitalize font-bold text-sm text-center">
+                      <p className="capitalize text-xs text-center text-gray-500">
                         {form.name
                           .replace(pokemon.name, "")
-                          .replace("-", " ") || "normal"}
+                          .replace("-", " ") || "Normal"}
                       </p>
-
-                      <div className="flex gap-1 mt-1">
-                        {form.types.map((type) => (
-                          <span
-                            key={type}
-                            className={`${
-                              typeColors[type] || "bg-gray-300"
-                            } text-[10px] text-white px-2 py-0.5 rounded-md capitalize`}
-                          >
-                            {type}
-                          </span>
-                        ))}
-                      </div>
                     </div>
                   ))}
                 </div>

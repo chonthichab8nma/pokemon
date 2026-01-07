@@ -1,11 +1,21 @@
-// import React from 'react'
-import { PokemonList } from './components/PokemonList'
-// import Pokemon from './bak/Pokemon'
+import { Routes, Route, Navigate } from "react-router-dom";
+import Navbar from "./Navbar";
+import { PokemonList } from "./components/PokemonList";
+import { Detail } from "./components/Detail";
+import Favorites from "./components/Fevorites";
 
-
-export default function App () {
+export default function App() {
   return (
-    <PokemonList />
-    // <Pokemon />
-  )
+    <>
+      <Navbar />
+
+      <Routes>
+        <Route path="/" element={<Navigate to="/pokemon" />} />
+        <Route path="/pokemon" element={<PokemonList />} />
+        <Route path="/pokemon/:id" element={<Detail />} />
+        <Route path="/favorites" element={<Favorites />} />
+
+      </Routes>
+    </>
+  );
 }

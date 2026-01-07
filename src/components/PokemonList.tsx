@@ -3,6 +3,8 @@ import axios from "axios";
 import { Search } from "lucide-react";
 import type { NamedResource, PokemonListItem } from "./data";
 import { useNavigate } from "react-router-dom";
+import { Star } from "lucide-react";
+import { addFavorite, removeFavorite, isFavorite } from "../utils/favorites";
 
 export const PokemonList = () => {
   const [pokemons, setPokemons] = useState<PokemonListItem[]>([]);
@@ -14,6 +16,7 @@ export const PokemonList = () => {
   // const [detailPokemon, setDetailPokemon] = useState<PokemonListItem | null>(null);
   // const [notFound, setNotFound] = useState(false);
   const navigate = useNavigate();
+  const [refresh, setRefresh] = useState(0); // บังคับ rerender
 
   const isFirstLoad = useRef(true);
 
@@ -79,7 +82,7 @@ export const PokemonList = () => {
       }
     };
     fetchPokemons();
-  }, [offset]);
+  }, [offset,refresh]);
 
   //  if (selectedPokemon) {
   //   return (
@@ -174,8 +177,36 @@ export const PokemonList = () => {
           <div
             key={pokemon.id}
             onClick={() => navigate(`/pokemon/${pokemon.id}`)}
-            className="bg-white rounded-2xl shadow-md p-4 flex flex-col items-center hover:shadow-xl hover:-translate-y-1 transition"
+            className="relative bg-white rounded-2xl shadow-md p-4 flex flex-col items-center hover:shadow-xl hover:-translate-y-1 transition"
           >
+            <button className="absolute top-2 right-2 z-10"
+              onClick={(e) => {
+                e.stopPropagation();
+
+                if (isFavorite(pokemon.id)) {
+                  removeFavorite(pokemon.id);
+                } else {
+                  addFavorite({
+                    id: pokemon.id,
+                    name: pokemon.name,
+                    image:
+                      pokemon.sprites.other?.home?.front_default ||
+                      pokemon.sprites.front_default ||
+                      "",
+                  });
+                }
+
+                setRefresh((r) => r + 1);
+              }}
+            >
+              <Star
+                className={
+                  isFavorite(pokemon.id)
+                    ? "fill-yellow-400 text-yellow-400"
+                    : "text-gray-400"
+                }
+              />
+            </button>
             <img
               src={
                 pokemon.sprites.other?.home?.front_default ||

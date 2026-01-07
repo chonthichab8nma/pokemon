@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import type { PokemonListItem, NamedResource, PokemonType } from "./data";
+import { addFavorite, removeFavorite, isFavorite } from "../utils/favorites";
 
 interface EvolutionDetail extends NamedResource {
   types: string[];
@@ -33,18 +34,18 @@ export const Detail = () => {
   const [evolutions, setEvolutions] = useState<EvolutionDetail[]>([]);
   const [forms, setForms] = useState<PokemonForm[]>([]);
 
+  // ... (ฟังก์ชัน parseEvolutionChain เหมือนเดิม) ...
   const parseEvolutionChain = (chain: EvolutionChainNode): NamedResource[] => {
     const result: NamedResource[] = [];
     const traverse = (currentStep: EvolutionChainNode) => {
       result.push(currentStep.species);
-
       currentStep.evolves_to.forEach(traverse);
     };
-
     traverse(chain);
     return result;
   };
 
+  // ... (useEffect เหมือนเดิม) ...
   useEffect(() => {
     if (!id) return;
 
@@ -59,8 +60,6 @@ export const Detail = () => {
         setPokemon(res.data);
 
         const speciesRes = await axios.get(res.data.species.url);
-
- 
         const varieties = speciesRes.data.varieties;
 
         const formDetails = await Promise.all(
@@ -68,7 +67,6 @@ export const Detail = () => {
             async (v: PokemonVariety): Promise<PokemonForm | null> => {
               try {
                 const formRes = await axios.get<PokemonListItem>(v.pokemon.url);
-
                 return {
                   name: formRes.data.name,
                   image:
@@ -88,7 +86,6 @@ export const Detail = () => {
         setForms(formDetails.filter(Boolean));
 
         const evoRes = await axios.get(speciesRes.data.evolution_chain.url);
-
         const evoList = parseEvolutionChain(evoRes.data.chain);
 
         const evoWithTypes = await Promise.all(
@@ -146,6 +143,12 @@ export const Detail = () => {
 
   if (!pokemon) return null;
 
+  // 1. สร้างตัวแปรเก็บรูปภาพที่ชัดที่สุดไว้ตรงนี้ เพื่อใช้ร่วมกัน
+  const pokemonImage =
+    pokemon.sprites.other?.home?.front_default ||
+    pokemon.sprites.front_default ||
+    "";
+
   const typeColors: Record<string, string> = {
     grass: "bg-green-500",
     poison: "bg-purple-500",
@@ -174,17 +177,31 @@ export const Detail = () => {
       </button>
 
       <div className="flex flex-col items-center">
+        {/* 2. ใช้ตัวแปร pokemonImage แสดงผล */}
         <img
-          src={
-            pokemon.sprites.other?.home?.front_default ||
-            pokemon.sprites.front_default ||
-            ""
-          }
+          src={pokemonImage}
           alt={pokemon.name}
           className="w-48 h-48 object-contain mb-4"
         />
 
         <h2 className="text-3xl font-bold capitalize mb-2">{pokemon.name}</h2>
+
+        <button
+          onClick={() => {
+            if (isFavorite(pokemon.id)) removeFavorite(pokemon.id);
+            else
+              addFavorite({
+                id: pokemon.id,
+                name: pokemon.name,
+                image: pokemonImage, // 3. ใช้ตัวแปร pokemonImage ในการบันทึก
+              });
+          }}
+          className={`mb-4 px-4 py-2 rounded-xl text-white ${
+            isFavorite(pokemon.id) ? "bg-yellow-400" : "bg-blue-500"
+          }`}
+        >
+          {isFavorite(pokemon.id) ? "ลบจากรายการโปรด" : "เพิ่มลงรายการโปรด"}
+        </button>
 
         <div className="flex gap-2 mb-4">
           {pokemon.types.map((t) => (
@@ -199,6 +216,8 @@ export const Detail = () => {
           ))}
         </div>
 
+        {/* ... (ส่วนแสดง Stats และ Evolutions เหมือนเดิม ไม่มีการเปลี่ยนแปลง) ... */}
+        
         <div className="mt-6 mb-6 w-full text-center">
           <p className="text-sm text-gray-500">Species</p>
           <p className="capitalize font-semibold">{pokemon.species.name}</p>
@@ -277,7 +296,6 @@ export const Detail = () => {
                   </div>
                   <p className="capitalize font-bold text-sm">{evo.name}</p>
 
-                  {/* แสดง Type ของแต่ละร่าง */}
                   <div className="flex gap-1 mt-1">
                     {evo.types.map((type) => (
                       <span
@@ -300,7 +318,15 @@ export const Detail = () => {
 
                 <div className="flex justify-center gap-6 flex-wrap">
                   {forms.map((form) => (
-                    <div key={form.name} className="flex flex-col items-center">
+                    <div
+                      key={form.name}
+                      onClick={() => navigate(`/pokemon/${form.name}`)}
+                      className={`cursor-pointer flex flex-col items-center hover:scale-105 transition ${
+                        form.name === pokemon.name
+                          ? "ring-2 ring-blue-500 rounded-xl p-2"
+                          : ""
+                      }`}
+                    >
                       <div className="bg-gray-50 rounded-full p-2 mb-2">
                         <img
                           src={form.image || ""}

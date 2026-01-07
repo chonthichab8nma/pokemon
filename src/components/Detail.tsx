@@ -4,6 +4,7 @@ import axios from "axios";
 import type { PokemonListItem, NamedResource, PokemonType } from "./data";
 import { addFavorite, removeFavorite, isFavorite } from "../utils/favorites";
 import { addToTeam, removeFromTeam, isInTeam } from "../utils/team";
+import { Star, Plus } from "lucide-react";
 
 interface EvolutionDetail extends NamedResource {
   types: string[];
@@ -35,6 +36,8 @@ export const Detail = () => {
   const [evolutions, setEvolutions] = useState<EvolutionDetail[]>([]);
   const [forms, setForms] = useState<PokemonForm[]>([]);
   const [teamMessage, setTeamMessage] = useState<string | null>(null);
+  const [favorite, setFavorite] = useState(false);
+  const [inTeam, setInTeam] = useState(false);
 
   const parseEvolutionChain = (chain: EvolutionChainNode): NamedResource[] => {
     const result: NamedResource[] = [];
@@ -117,6 +120,13 @@ export const Detail = () => {
     fetchPokemon();
   }, [id]);
 
+  useEffect(() => {
+    if (pokemon) {
+      setFavorite(isFavorite(pokemon.id));
+      setInTeam(isInTeam(pokemon.id));
+    }
+  }, [pokemon]);
+
   if (loading) {
     return (
       <p className="text-center text-gray-500 mt-20 text-xl">
@@ -167,45 +177,43 @@ export const Detail = () => {
   };
 
   return (
-    <div className="max-w-xl mx-auto mt-10 bg-white rounded-3xl shadow-lg p-6">
+    <div className="max-w-xl mx-auto mt-10 bg-white rounded-3xl shadow-lg p-6 relative">
       <button
         onClick={() => navigate(-1)}
-        className="mb-4 text-sm text-gray-500 hover:underline"
+        className="absolute top-4 left-4 text-sm text-gray-500 hover:underline"
       >
-        ← กลับ
+        ←
       </button>
-
-      <div className="flex flex-col items-center">
-        <img
-          src={pokemonImage}
-          alt={pokemon.name}
-          className="w-48 h-48 object-contain mb-4"
-        />
-
-        <h2 className="text-3xl font-bold capitalize mb-2">{pokemon.name}</h2>
-
+      <div className="absolute top-4 right-4 flex gap-2">
         <button
           onClick={() => {
-            if (isFavorite(pokemon.id)) removeFavorite(pokemon.id);
+            if (favorite) removeFavorite(pokemon.id);
             else
               addFavorite({
                 id: pokemon.id,
                 name: pokemon.name,
                 image: pokemonImage,
               });
+            setFavorite(!favorite);
           }}
-          className={`mb-4 px-4 py-2 rounded-xl text-white ${
-            isFavorite(pokemon.id) ? "bg-yellow-400" : "bg-blue-500"
+          className={`p-2 rounded-full text-white ${
+            favorite ? "bg-yellow-400" : "bg-gray-400"
           }`}
+          title={favorite ? "ลบจากโปรด" : "เพิ่มลงโปรด"}
         >
-          {isFavorite(pokemon.id) ? "ลบจากรายการโปรด" : "เพิ่มลงรายการโปรด"}
+          <Star
+            size={20}
+            fill={favorite ? "currentColor" : "none"}
+            stroke="currentColor"
+          />
         </button>
         <button
           onClick={() => {
-            if (isInTeam(pokemon.id)) {
+            if (!pokemon) return;
+
+            if (inTeam) {
               removeFromTeam(pokemon.id);
-              window.dispatchEvent(new Event("teamUpdated"));
-              setTeamMessage(null);
+              setInTeam(false);
             } else {
               const added = addToTeam({
                 id: pokemon.id,
@@ -214,25 +222,44 @@ export const Detail = () => {
                 types: pokemon.types.map((t) => t.type.name),
               });
 
-              if (!added) {
+              if (added) {
+                setInTeam(true);
+              } else {
                 setTeamMessage(
                   "ทีมเต็มแล้ว! คุณสามารถมี Pokémon ได้สูงสุด 6 ตัว"
                 );
-              } else {
-                setTeamMessage(null);
-                window.dispatchEvent(new Event("teamUpdated"));
+                setTimeout(() => {
+                  setTeamMessage(null);
+                }, 3000);
               }
             }
+
+            window.dispatchEvent(new Event("teamUpdated"));
           }}
-          className={`mb-4 px-4 py-2 rounded-xl text-white ${
-            isInTeam(pokemon.id) ? "bg-red-500" : "bg-green-500"
+          className={`p-2 rounded-full text-white ${
+            inTeam ? "bg-red-500" : "bg-green-500"
           }`}
+          title={inTeam ? "ลบออกจากทีม" : "เพิ่มเข้าทีม"}
         >
-          {isInTeam(pokemon.id) ? "ลบออกจากทีม" : "เพิ่มเข้าทีม"}
+          <Plus size={20} />
         </button>
-        {teamMessage && (
-          <p className="mt-2 text-sm text-red-500 text-center">{teamMessage}</p>
-        )}
+      </div>
+
+      <div className="flex flex-col items-center">
+       {teamMessage && (
+    <div className="w-full mb-4 animate-in fade-in zoom-in duration-200">
+      <div className="bg-red-600 text-white px-4 py-2 rounded-xl text-sm font-bold text-center shadow-md">
+        {teamMessage}
+      </div>
+    </div>
+  )}
+        <img
+          src={pokemonImage}
+          alt={pokemon.name}
+          className="w-48 h-48 object-contain"
+        />
+
+        <h2 className="text-3xl font-bold capitalize mb-2">{pokemon.name}</h2>
 
         <div className="flex gap-2 mb-4">
           {pokemon.types.map((t) => (

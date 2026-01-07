@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import type { PokemonListItem, NamedResource, PokemonType } from "./data";
 import { addFavorite, removeFavorite, isFavorite } from "../utils/favorites";
+import { addToTeam, removeFromTeam, isInTeam } from "../utils/team";
 
 interface EvolutionDetail extends NamedResource {
   types: string[];
@@ -33,8 +34,8 @@ export const Detail = () => {
   const [notFound, setNotFound] = useState(false);
   const [evolutions, setEvolutions] = useState<EvolutionDetail[]>([]);
   const [forms, setForms] = useState<PokemonForm[]>([]);
+  const [teamMessage, setTeamMessage] = useState<string | null>(null);
 
-  // ... (ฟังก์ชัน parseEvolutionChain เหมือนเดิม) ...
   const parseEvolutionChain = (chain: EvolutionChainNode): NamedResource[] => {
     const result: NamedResource[] = [];
     const traverse = (currentStep: EvolutionChainNode) => {
@@ -45,7 +46,6 @@ export const Detail = () => {
     return result;
   };
 
-  // ... (useEffect เหมือนเดิม) ...
   useEffect(() => {
     if (!id) return;
 
@@ -143,7 +143,6 @@ export const Detail = () => {
 
   if (!pokemon) return null;
 
-  // 1. สร้างตัวแปรเก็บรูปภาพที่ชัดที่สุดไว้ตรงนี้ เพื่อใช้ร่วมกัน
   const pokemonImage =
     pokemon.sprites.other?.home?.front_default ||
     pokemon.sprites.front_default ||
@@ -177,7 +176,6 @@ export const Detail = () => {
       </button>
 
       <div className="flex flex-col items-center">
-        {/* 2. ใช้ตัวแปร pokemonImage แสดงผล */}
         <img
           src={pokemonImage}
           alt={pokemon.name}
@@ -193,7 +191,7 @@ export const Detail = () => {
               addFavorite({
                 id: pokemon.id,
                 name: pokemon.name,
-                image: pokemonImage, // 3. ใช้ตัวแปร pokemonImage ในการบันทึก
+                image: pokemonImage,
               });
           }}
           className={`mb-4 px-4 py-2 rounded-xl text-white ${
@@ -202,6 +200,39 @@ export const Detail = () => {
         >
           {isFavorite(pokemon.id) ? "ลบจากรายการโปรด" : "เพิ่มลงรายการโปรด"}
         </button>
+        <button
+          onClick={() => {
+            if (isInTeam(pokemon.id)) {
+              removeFromTeam(pokemon.id);
+              window.dispatchEvent(new Event("teamUpdated"));
+              setTeamMessage(null);
+            } else {
+              const added = addToTeam({
+                id: pokemon.id,
+                name: pokemon.name,
+                image: pokemonImage,
+                types: pokemon.types.map((t) => t.type.name),
+              });
+
+              if (!added) {
+                setTeamMessage(
+                  "ทีมเต็มแล้ว! คุณสามารถมี Pokémon ได้สูงสุด 6 ตัว"
+                );
+              } else {
+                setTeamMessage(null);
+                window.dispatchEvent(new Event("teamUpdated"));
+              }
+            }
+          }}
+          className={`mb-4 px-4 py-2 rounded-xl text-white ${
+            isInTeam(pokemon.id) ? "bg-red-500" : "bg-green-500"
+          }`}
+        >
+          {isInTeam(pokemon.id) ? "ลบออกจากทีม" : "เพิ่มเข้าทีม"}
+        </button>
+        {teamMessage && (
+          <p className="mt-2 text-sm text-red-500 text-center">{teamMessage}</p>
+        )}
 
         <div className="flex gap-2 mb-4">
           {pokemon.types.map((t) => (
@@ -216,8 +247,6 @@ export const Detail = () => {
           ))}
         </div>
 
-        {/* ... (ส่วนแสดง Stats และ Evolutions เหมือนเดิม ไม่มีการเปลี่ยนแปลง) ... */}
-        
         <div className="mt-6 mb-6 w-full text-center">
           <p className="text-sm text-gray-500">Species</p>
           <p className="capitalize font-semibold">{pokemon.species.name}</p>

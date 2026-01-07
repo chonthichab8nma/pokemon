@@ -1,9 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { Search } from "lucide-react";
-import type {NamedResource, PokemonListItem} from "./data";
+import type { NamedResource, PokemonListItem } from "./data";
 import { useNavigate } from "react-router-dom";
-
 
 export const PokemonList = () => {
   const [pokemons, setPokemons] = useState<PokemonListItem[]>([]);
@@ -17,8 +16,6 @@ export const PokemonList = () => {
   const navigate = useNavigate();
 
   const isFirstLoad = useRef(true);
-
-  
 
   // const handleSelect = async (idOrName: number | string) => {
   //   if (!idOrName) return;
@@ -45,11 +42,9 @@ export const PokemonList = () => {
   //   }
   // };
   const handleSearch = () => {
-  if (!search.trim()) return;
-  navigate(`/pokemon/${search.toLowerCase().trim()}`);
-};
-
-
+    if (!search.trim()) return;
+    navigate(`/pokemon/${search.toLowerCase().trim()}`);
+  };
 
   useEffect(() => {
     if (!isFirstLoad.current && offset === 0) return;
@@ -173,55 +168,53 @@ export const PokemonList = () => {
           ไม่พบ Pokémon ที่คุณค้นหา
         </p>
       )} */}
-     
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {pokemons.map((pokemon) => (
-            <div
-              key={pokemon.id}
-              onClick={() => navigate(`/pokemon/${pokemon.id}`)}
-              className="bg-white rounded-2xl shadow-md p-4 flex flex-col items-center hover:shadow-xl hover:-translate-y-1 transition"
-            >
-              <img
-                src={
-                  pokemon.sprites.other?.home?.front_default ||
-                  pokemon.sprites.front_default ||
-                  ""
-                }
-                alt={pokemon.name}
-                className="w-28 h-28 object-contain mb-2"
-              />
 
-              <h3 className="capitalize font-bold text-gray-700 mb-2">
-                {pokemon.name}
-              </h3>
-              <div className="flex gap-2 flex-wrap justify-center">
-                {pokemon.types.map((t) => (
-                  <span
-                    key={t.slot}
-                    className={`${
-                      typeColors[t.type.name] || "bg-gray-300"
-                    } text-white px-3 py-1 rounded-full text-xs font-semibold capitalize`}
-                  >
-                    {t.type.name}
-                  </span>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      
-      
-        <div className="flex justify-center">
-          <button
-            onClick={() => {
-              setOffset((prevOffset) => prevOffset + 12);
-            }}
-            className="bg-[#5DBACA] text-white rounded-4xl p-4 mt-10 mb-10 "
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {pokemons.map((pokemon) => (
+          <div
+            key={pokemon.id}
+            onClick={() => navigate(`/pokemon/${pokemon.id}`)}
+            className="bg-white rounded-2xl shadow-md p-4 flex flex-col items-center hover:shadow-xl hover:-translate-y-1 transition"
           >
-            หน้าถัดไป
-          </button>
-        </div>
-     
+            <img
+              src={
+                pokemon.sprites.other?.home?.front_default ||
+                pokemon.sprites.front_default ||
+                ""
+              }
+              alt={pokemon.name}
+              className="w-28 h-28 object-contain mb-2"
+            />
+
+            <h3 className="capitalize font-bold text-gray-700 mb-2">
+              {pokemon.name}
+            </h3>
+            <div className="flex gap-2 flex-wrap justify-center">
+              {pokemon.types.map((t) => (
+                <span
+                  key={t.slot}
+                  className={`${
+                    typeColors[t.type.name] || "bg-gray-300"
+                  } text-white px-3 py-1 rounded-full text-xs font-semibold capitalize`}
+                >
+                  {t.type.name}
+                </span>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="flex justify-center">
+        <button
+          onClick={() => {
+            setOffset((prevOffset) => prevOffset + 12);
+          }}
+          className="bg-[#5DBACA] text-white rounded-4xl p-4 mt-10 mb-10 "
+        >
+          หน้าถัดไป
+        </button>
+      </div>
     </>
   );
 };

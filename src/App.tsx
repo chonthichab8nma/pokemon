@@ -16,7 +16,6 @@ export default function App() {
         <Route path="/pokemon/:id" element={<Detail />} />
         <Route path="/favorites" element={<Favorites />} />
         <Route path="/team" element={<Team />} />
-
       </Routes>
     </>
   );

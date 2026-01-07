@@ -16,7 +16,8 @@ export const PokemonList = () => {
   // const [detailPokemon, setDetailPokemon] = useState<PokemonListItem | null>(null);
   // const [notFound, setNotFound] = useState(false);
   const navigate = useNavigate();
-  const [refresh, setRefresh] = useState(0); // บังคับ rerender
+  const [refresh, setRefresh] = useState(0); 
+  
 
   const isFirstLoad = useRef(true);
 
@@ -82,16 +83,7 @@ export const PokemonList = () => {
       }
     };
     fetchPokemons();
-  }, [offset,refresh]);
-
-  //  if (selectedPokemon) {
-  //   return (
-  //     <Detail
-  //       pokemon={detailPokemon}
-  //       onBack={() => setDetailPokemon(null)}
-  //     />
-  //   );
-  // }
+  }, [offset, refresh]);
 
   const typeColors: Record<string, string> = {
     grass: "bg-green-500",
@@ -110,76 +102,70 @@ export const PokemonList = () => {
     ice: "bg-cyan-400",
     dragon: "bg-indigo-600",
   };
+  const typeHexColors: Record<string, string> = {
+    grass: "#22c55e",
+    poison: "#a855f7",
+    fire: "#f97316",
+    water: "#3b82f6",
+    electric: "#facc15",
+    bug: "#84cc16",
+    normal: "#9ca3af",
+    ground: "#d97706",
+    fairy: "#f472b6",
+    fighting: "#dc2626",
+    psychic: "#ec4899",
+    rock: "#78716c",
+    ghost: "#4338ca",
+    ice: "#22d3ee",
+    dragon: "#4f46e5",
+  };
 
   return (
-    <>
-      <h2 className="flex justify-center text-6xl mb-10 mt-10"> Pokémon</h2>
+    <div className="min-h-screen bg-black text-[#7fff00] p-4 font-pixel">
+      <h2 className="flex justify-center text-4xl mb-10 mt-4"> Pokémon</h2>
+
+      {/* Search================================================================================ */}
+
       <div className="relative max-w-sm mx-auto mb-10">
         <input
           type="text"
-          placeholder="ค้นหา..."
+          placeholder="Search..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-          className="w-full bg-amber-300 border-2 border-gray-300 rounded-2xl py-3 pr-20 pl-4 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+          className="w-full border-[#7fff00] border-2  rounded-2xl py-3 pr-20 pl-4 focus:outline-none "
         />
 
         <button
           onClick={() => handleSearch()}
-          className="absolute right-1 top-1/2 -translate-y-1/2 text-white px-4 py-1 rounded-2xl hover:bg-yellow-500 transition flex items-center"
+          className="absolute right-1 top-1/2 -translate-y-1/2 hover:text-[#7fff00] px-4 py-1  flex items-center"
         >
           <Search size={16} className="mr-1" />
         </button>
       </div>
 
-      {/* {loading && (
-        <p className="text-center text-gray-500 mb-4">กำลังโหลด Pokémon...</p>
-      )}
-      {selectedPokemon && !loading && (
-        <div className="flex justify-center mb-10">
-          <div className="bg-white rounded-2xl shadow-md p-6 flex flex-col items-center">
-            <img
-              src={
-                selectedPokemon.sprites.other?.home?.front_default ||
-                selectedPokemon.sprites.front_default ||
-                ""
-              }
-              alt={selectedPokemon.name}
-              className="w-32 h-32 object-contain mb-4"
-            />
-            <h3 className="capitalize font-bold text-gray-700 mb-2 text-2xl">
-              {selectedPokemon.name}
-            </h3>
-            <div className="flex gap-2 flex-wrap justify-center">
-              {selectedPokemon.types.map((t) => (
-                <span
-                  key={t.slot}
-                  className={`${
-                    typeColors[t.type.name] || "bg-gray-300"
-                  } text-white px-3 py-1 rounded-full text-xs font-semibold capitalize`}
-                >
-                  {t.type.name}
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
-      )} */}
+      {/* Fev================================================================================ */}
 
-      {/* {notFound && (
-        <p className="text-center text-red-500 font-semibold mb-4">
-          ไม่พบ Pokémon ที่คุณค้นหา
-        </p>
-      )} */}
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+        {pokemons.map((pokemon) => {
+          const primaryType = pokemon.types[0].type.name;
+  const gradientColor = typeHexColors[primaryType] || "#374151";
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {pokemons.map((pokemon) => (
+  return(
+
+
+          
           <div
             key={pokemon.id}
             onClick={() => navigate(`/pokemon/${pokemon.id}`)}
-            className="relative bg-white rounded-2xl shadow-md p-4 flex flex-col items-center hover:shadow-xl hover:-translate-y-1 transition"
+            className="relative bg-black rounded-2xl shadow-md p-4 flex flex-col items-center hover:shadow-xl hover:-translate-y-1 transition"
+            style={{
+              
+                background: `linear-gradient(to top, ${gradientColor} 0%, #000000 60%)`,
+              }}
           >
-            <button className="absolute top-2 right-2 z-10"
+            <button
+              className="absolute top-2 right-2 z-10"
               onClick={(e) => {
                 e.stopPropagation();
 
@@ -217,7 +203,9 @@ export const PokemonList = () => {
               className="w-28 h-28 object-contain mb-2"
             />
 
-            <h3 className="capitalize font-bold text-gray-700 mb-2">
+            {/* Name================================================================================ */}
+
+            <h3 className="capitalize font-bold text-gray-100 mb-2 text-lg drop-shadow-md">
               {pokemon.name}
             </h3>
             <div className="flex gap-2 flex-wrap justify-center">
@@ -232,8 +220,8 @@ export const PokemonList = () => {
                 </span>
               ))}
             </div>
-          </div>
-        ))}
+          </div> );
+})}
       </div>
 
       <div className="flex justify-center">
@@ -241,11 +229,11 @@ export const PokemonList = () => {
           onClick={() => {
             setOffset((prevOffset) => prevOffset + 12);
           }}
-          className="bg-[#5DBACA] text-white rounded-4xl p-4 mt-10 mb-10 "
+          className="bg-[#7fff00] text-white rounded-2xl p-4 mt-10 mb-10 "
         >
-          หน้าถัดไป
+          Next
         </button>
       </div>
-    </>
+    </div>
   );
 };

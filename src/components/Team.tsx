@@ -28,10 +28,10 @@ const typeColors: Record<string, string> = {
 };
 
 export const Team = () => {
-  const [team, setTeam] = useState<PokemonTeamItem[]>([]);
+  const [team, setTeam] = useState<PokemonTeamItem[]>(() => getTeam());
 
   useEffect(() => {
-    setTeam(getTeam());
+    // setTeam(getTeam());
 
     const listener = () => setTeam(getTeam());
     window.addEventListener("teamUpdated", listener);
@@ -41,29 +41,16 @@ export const Team = () => {
 
   const handleRemove = (id: number) => {
     removeFromTeam(id);
-    setTeam(getTeam()); 
+    setTeam(getTeam());
   };
 
   if (team.length === 0) {
-    return (
-      <div className="text-center mt-20">
-        <p className="text-gray-400 text-xl mb-4">ยังไม่มี Pokémon ในทีม</p>
-        <Link
-          to="/pokemon"
-          className="bg-blue-500 text-white px-6 py-2 rounded-xl hover:bg-blue-600 transition"
-        >
-          ไปเลือก Pokémon เข้าทีม
-        </Link>
-      </div>
-    );
+    return <p className="text-gray-400 text-xl flex justify-center mt-4">ยังไม่มี Pokémon ในทีม</p>;
   }
 
   return (
     <div className="max-w-4xl mx-auto p-6">
       <h1 className="text-3xl font-bold mb-6 text-center">My Pokémon Team</h1>
-      <p className="text-center text-gray-500 mb-8">
-        จัดการทีมของคุณ (สูงสุด 6 ตัว) | ปัจจุบัน: {team.length}/6
-      </p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
         {team.map((p) => (
@@ -82,7 +69,10 @@ export const Team = () => {
               ✕
             </button>
 
-            <Link to={`/pokemon/${p.name}`} className="flex flex-col items-center w-full">
+            <Link
+              to={`/pokemon/${p.name}`}
+              className="flex flex-col items-center w-full"
+            >
               <img
                 src={p.image}
                 alt={p.name}
@@ -94,7 +84,9 @@ export const Team = () => {
                 {p.types.map((t) => (
                   <span
                     key={t}
-                    className={`${typeColors[t] || "bg-gray-400"} text-white text-xs px-2 py-1 rounded-full capitalize`}
+                    className={`${
+                      typeColors[t] || "bg-gray-400"
+                    } text-white text-xs px-2 py-1 rounded-full capitalize`}
                   >
                     {t}
                   </span>

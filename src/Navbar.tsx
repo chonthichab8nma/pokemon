@@ -6,10 +6,10 @@ export default function Navbar() {
     "font-pixel text-[12px] px-4 py-2 rounded-xl font-semibold transition";
 
   const active =
-    " text-[#7fff00] border-b-2 border-[#7fff00] rounded-none";
+    " text-green border-b-2 border-green rounded-none";
 
   const inactive =
-    " text-gray-400 hover:text-[#7fff00]";
+    " text-gray-400 hover:text-green";
 
   return (
     <nav className="sticky top-0 z-50 bg-black ">

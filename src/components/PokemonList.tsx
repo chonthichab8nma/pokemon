@@ -16,8 +16,7 @@ export const PokemonList = () => {
   // const [detailPokemon, setDetailPokemon] = useState<PokemonListItem | null>(null);
   // const [notFound, setNotFound] = useState(false);
   const navigate = useNavigate();
-  const [refresh, setRefresh] = useState(0); 
-  
+  const [refresh, setRefresh] = useState(0);
 
   const isFirstLoad = useRef(true);
 
@@ -121,7 +120,7 @@ export const PokemonList = () => {
   };
 
   return (
-    <div className="min-h-screen bg-black text-[#7fff00] p-4 font-pixel">
+    <div className="min-h-screen bg-black text-green p-4 font-pixel">
       <h2 className="flex justify-center text-4xl mb-10 mt-4"> Pokémon</h2>
 
       {/* Search================================================================================ */}
@@ -133,12 +132,12 @@ export const PokemonList = () => {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-          className="w-full border-[#7fff00] border-2  rounded-2xl py-3 pr-20 pl-4 focus:outline-none "
+          className="w-full border-green border-2  rounded-2xl py-3 pr-20 pl-4 focus:outline-none "
         />
 
         <button
           onClick={() => handleSearch()}
-          className="absolute right-1 top-1/2 -translate-y-1/2 hover:text-[#7fff00] px-4 py-1  flex items-center"
+          className="absolute right-1 top-1/2 -translate-y-1/2 hover:text-green px-4 py-1  flex items-center"
         >
           <Search size={16} className="mr-1" />
         </button>
@@ -149,79 +148,77 @@ export const PokemonList = () => {
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         {pokemons.map((pokemon) => {
           const primaryType = pokemon.types[0].type.name;
-  const gradientColor = typeHexColors[primaryType] || "#374151";
+          const gradientColor = typeHexColors[primaryType] || "#374151";
 
-  return(
-
-
-          
-          <div
-            key={pokemon.id}
-            onClick={() => navigate(`/pokemon/${pokemon.id}`)}
-            className="relative bg-black rounded-2xl shadow-md p-4 flex flex-col items-center hover:shadow-xl hover:-translate-y-1 transition"
-            style={{
-              
-                background: `linear-gradient(to top, ${gradientColor} 0%, #000000 60%)`,
-              }}
-          >
-            <button
-              className="absolute top-2 right-2 z-10"
-              onClick={(e) => {
-                e.stopPropagation();
-
-                if (isFavorite(pokemon.id)) {
-                  removeFavorite(pokemon.id);
-                } else {
-                  addFavorite({
-                    id: pokemon.id,
-                    name: pokemon.name,
-                    image:
-                      pokemon.sprites.other?.home?.front_default ||
-                      pokemon.sprites.front_default ||
-                      "",
-                  });
-                }
-
-                setRefresh((r) => r + 1);
+          return (
+            <div
+              key={pokemon.id}
+              onClick={() => navigate(`/pokemon/${pokemon.id}`)}
+              className="relative bg-black rounded-2xl shadow-md p-4 flex flex-col items-center hover:shadow-xl hover:-translate-y-1 transition"
+              style={{
+                background: `linear-gradient(to top, ${gradientColor} 0%, #000000 100%)`,
               }}
             >
-              <Star
-                className={
-                  isFavorite(pokemon.id)
-                    ? "fill-yellow-400 text-yellow-400"
-                    : "text-gray-400"
+              <button
+                className="absolute top-2 right-2 z-10"
+                onClick={(e) => {
+                  e.stopPropagation();
+
+                  if (isFavorite(pokemon.id)) {
+                    removeFavorite(pokemon.id);
+                  } else {
+                    addFavorite({
+                      id: pokemon.id,
+                      name: pokemon.name,
+                      image:
+                        pokemon.sprites.other?.home?.front_default ||
+                        pokemon.sprites.front_default ||
+                        "",
+                    });
+                  }
+
+                  setRefresh((r) => r + 1);
+                }}
+              >
+                <Star
+                  className={
+                    isFavorite(pokemon.id)
+                      ? "fill-yellow-400 text-yellow-400"
+                      : "text-gray-400"
+                  }
+                />
+              </button>
+
+              <img
+                src={
+                  pokemon.sprites.other?.home?.front_default ||
+                  pokemon.sprites.front_default ||
+                  ""
                 }
+                alt={pokemon.name}
+                className="w-28 h-28 object-contain mb-2"
               />
-            </button>
-            <img
-              src={
-                pokemon.sprites.other?.home?.front_default ||
-                pokemon.sprites.front_default ||
-                ""
-              }
-              alt={pokemon.name}
-              className="w-28 h-28 object-contain mb-2"
-            />
 
-            {/* Name================================================================================ */}
+              {/* Name================================================================================ */}
 
-            <h3 className="capitalize font-bold text-gray-100 mb-2 text-lg drop-shadow-md">
-              {pokemon.name}
-            </h3>
-            <div className="flex gap-2 flex-wrap justify-center">
-              {pokemon.types.map((t) => (
-                <span
-                  key={t.slot}
-                  className={`${
-                    typeColors[t.type.name] || "bg-gray-300"
-                  } text-white px-3 py-1 rounded-full text-xs font-semibold capitalize`}
-                >
-                  {t.type.name}
-                </span>
-              ))}
+              <h3 className="capitalize font-bold text-gray-100 mb-2 text-lg drop-shadow-md">
+                {pokemon.name}
+              </h3>
+              <div className="flex gap-2 flex-wrap justify-center">
+                {pokemon.types.map((t) => (
+                  <span
+                    key={t.slot}
+                    className={`${
+                      typeColors[t.type.name] || "bg-gray-300"
+                    } text-white px-3 py-1 rounded-full text-xs font-semibold capitalize`}
+                  >
+                    {t.type.name}
+                  </span>
+                ))}
+              </div>
             </div>
-          </div> );
-})}
+          );
+        })}
       </div>
 
       <div className="flex justify-center">
@@ -229,7 +226,7 @@ export const PokemonList = () => {
           onClick={() => {
             setOffset((prevOffset) => prevOffset + 12);
           }}
-          className="bg-[#7fff00] text-white rounded-2xl p-4 mt-10 mb-10 "
+          className=" text-green hover:text-amber-200 p-4 mt-10 mb-10 "
         >
           Next
         </button>

@@ -69,7 +69,6 @@ export const Team = () => {
   return (
     <div className="font-pixel min-h-screen bg-black text-white p-6 md:p-12 relative">
       
-     
       <button
           onClick={() => navigate("/pokemon")}
           className="absolute top-6 left-6 text-sm text-zinc-400 hover:text-white hover:underline z-50 cursor-pointer bg-black/50 px-3 py-1 rounded-full backdrop-blur-md flex items-center gap-1"
@@ -93,9 +92,9 @@ export const Team = () => {
             >
             
               <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation(); 
+                onClick={() => {
+                  // e.preventDefault();
+                  // e.stopPropagation(); 
                   handleRemove(p.id);
                 }}
                 className="absolute top-4 right-4 p-2 bg-zinc-800 text-zinc-400 rounded-full hover:bg-red-600 hover:text-white transition-all z-20 opacity-0 group-hover:opacity-100 cursor-pointer"

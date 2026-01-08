@@ -147,7 +147,7 @@ export const Detail = () => {
           onClick={() => navigate("/pokemon")}
           className="bg-gray-700 text-white px-4 py-2 rounded-xl hover:bg-gray-600"
         >
-          กลับ
+          back
         </button>
       </div>
     );
@@ -179,8 +179,8 @@ export const Detail = () => {
   };
 
   return (
-    //
-    <div className="font-pixel min-h-screen w-full bg-black py-10 px-4 text-white">
+    
+    <div className="font-pixel min-h-screen w-full bg-black py-10 px-4 text-white relative">
      
       <div className="max-w-8xl mx-auto mt-10 bg-black relative  ">
        

@@ -61,7 +61,7 @@ export default function Favorites() {
                 
                
                 <div className="relative flex justify-center py-6 mb-2">
-                    <div className="absolute inset-0 bg-liner-to-tr from-purple-500/20 to-blue-500/20 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    <div className="absolute inset-0 bg-liner-to-tr from-purple-500/20 to-blue-500/20" />
                     <img 
                         src={p.image} 
                         alt={p.name}
@@ -84,7 +84,7 @@ export default function Favorites() {
                 className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-zinc-800 text-zinc-400 text-sm font-medium transition-all hover:bg-red-900/30 hover:text-red-400 border border-transparent hover:border-red-900/50"
               >
                 <Trash2 size={16} />
-                <span>Remove</span>
+                {/* <span>Remove</span> */}
               </button>
               
             </div>

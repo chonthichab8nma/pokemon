@@ -156,7 +156,7 @@ export const PokemonList = () => {
               onClick={() => navigate(`/pokemon/${pokemon.id}`)}
               className="relative bg-black rounded-2xl shadow-md p-4 flex flex-col items-center hover:shadow-xl hover:-translate-y-1 transition"
               style={{
-                background: `linear-gradient(to top, ${gradientColor} 0%, #000000 100%)`,
+                background: `linear-gradient(to top, ${gradientColor} 0%, #000000 70%)`,
               }}
             >
               <button
